@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Loan Calculator</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<main class="page">
+
+    <header class="hero">
+        <h1>Loan Calculator</h1>
+        <p>Compare annuity and differentiated repayments, see the total cost of the loan and the full payment schedule.</p>
+    </header>
+
+    <section class="card">
+        <form th:action="@{/calculate}" th:object="${loanRequest}" method="post" novalidate>
+            <div class="form-grid">
+
+                <div class="field">
+                    <label for="amount">Loan amount</label>
+                    <div class="input-wrap">
+                        <span class="prefix" th:text="${currency}">$</span>
+                        <input id="amount" type="number" th:field="*{amount}"
+                               min="1" step="0.01" inputmode="decimal" autocomplete="off" required>
+                    </div>
+                    <p class="error" th:if="${#fields.hasErrors('amount')}" th:errors="*{amount}">Invalid amount</p>
+                </div>
+
+                <div class="field">
+                    <label for="annualInterestRate">Annual interest rate</label>
+                    <div class="input-wrap">
+                        <input id="annualInterestRate" type="number" th:field="*{annualInterestRate}"
+                               min="0" max="100" step="0.01" inputmode="decimal" autocomplete="off" required>
+                        <span class="suffix">%</span>
+                    </div>
+                    <p class="error" th:if="${#fields.hasErrors('annualInterestRate')}" th:errors="*{annualInterestRate}">Invalid rate</p>
+                </div>
+
+                <div class="field">
+                    <label for="termMonths">Term, months</label>
+                    <input id="termMonths" type="number" th:field="*{termMonths}"
+                           min="1" max="600" step="1" inputmode="numeric" autocomplete="off" required>
+                    <p class="error" th:if="${#fields.hasErrors('termMonths')}" th:errors="*{termMonths}">Invalid term</p>
+                </div>
+
+                <div class="field">
+                    <label for="type">Repayment type</label>
+                    <select id="type" th:field="*{type}">
+                        <option th:each="loanType : ${loanTypes}"
+                                th:value="${loanType}"
+                                th:text="${loanType.label}">Annuity</option>
+                    </select>
+                    <p class="error" th:if="${#fields.hasErrors('type')}" th:errors="*{type}">Invalid type</p>
+                </div>
+
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="primary">Calculate</button>
+                <p class="hint">
+                    Annuity keeps the payment flat; differentiated payments start higher and go down every month.
+                </p>
+            </div>
+        </form>
+    </section>
+
+    <section class="results" th:if="${result}">
+
+        <div class="result-head">
+            <h2>Results</h2>
+            <p class="muted">
+                <span th:text="${result.request.type.label}">Annuity</span> &middot;
+                <span th:text="|${#numbers.formatDecimal(result.request.amount, 1, 2)} ${currency}|">250 000 $</span> &middot;
+                <span th:text="|${result.request.annualInterestRate}% for ${result.request.termMonths} months|">12.5% for 60 months</span>
+            </p>
+        </div>
+
+        <div class="stats">
+            <div class="stat">
+                <span class="stat-label" th:text="${result.annuity} ? 'Monthly payment' : 'First payment'">Monthly payment</span>
+                <span class="stat-value" th:text="|${currency}${#numbers.formatDecimal(result.firstPayment, 1, 2)}|">$888.49</span>
+            </div>
+
+            <div class="stat" th:unless="${result.hasConstantPayment()}">
+                <span class="stat-label">Last payment</span>
+                <span class="stat-value" th:text="|${currency}${#numbers.formatDecimal(result.lastPayment, 1, 2)}|">$1 000.00</span>
+            </div>
+
+            <div class="stat">
+                <span class="stat-label">Total interest</span>
+                <span class="stat-value accent" th:text="|${currency}${#numbers.formatDecimal(result.totalInterest, 1, 2)}|">$5 000.00</span>
+                <span class="stat-note" th:text="|${result.overpayment}% over the principal|">20% over the principal</span>
+            </div>
+
+            <div class="stat">
+                <span class="stat-label">Total paid</span>
+                <span class="stat-value" th:text="|${currency}${#numbers.formatDecimal(result.totalPaid, 1, 2)}|">$300 000.00</span>
+            </div>
+        </div>
+
+        <div class="split">
+            <div class="split-bar">
+                <div class="split-principal" th:style="|width: ${result.principalShare}%|"></div>
+                <div class="split-interest" th:style="|width: ${100 - result.principalShare}%|"></div>
+            </div>
+            <div class="split-legend">
+                <span><i class="dot principal"></i>Principal
+                    <strong th:text="|${result.principalShare}%|">73%</strong></span>
+                <span><i class="dot interest"></i>Interest
+                    <strong th:text="|${100 - result.principalShare}%|">27%</strong></span>
+            </div>
+        </div>
+
+        <div class="card schedule-card">
+            <h3>Payment schedule</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                    <tr>
+                        <th class="num">Month</th>
+                        <th class="num">Payment</th>
+                        <th class="num">Principal</th>
+                        <th class="num">Interest</th>
+                        <th class="num">Balance</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="row : ${result.schedule}">
+                        <td class="num" th:text="${row.month}">1</td>
+                        <td class="num" th:text="|${currency}${#numbers.formatDecimal(row.payment, 1, 2)}|">$888.49</td>
+                        <td class="num" th:text="|${currency}${#numbers.formatDecimal(row.principal, 1, 2)}|">$788.49</td>
+                        <td class="num" th:text="|${currency}${#numbers.formatDecimal(row.interest, 1, 2)}|">$100.00</td>
+                        <td class="num" th:text="|${currency}${#numbers.formatDecimal(row.remainingBalance, 1, 2)}|">$9 211.51</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="footnote">
+                Values are rounded to cents. The last payment is adjusted to close the balance exactly at zero.
+                The calculation does not include fees, insurance or other bank commissions.
+            </p>
+        </div>
+
+    </section>
+
+    <footer class="footer">
+        <p>Loan Calculator &middot; Spring Boot + Thymeleaf</p>
+    </footer>
+
+</main>
+</body>
+</html>
