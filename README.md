@@ -1,35 +1,39 @@
-# Loan Calculator
+# Кредитный калькулятор
 
-A small Spring Boot web application that calculates loan payments, total interest
-and a full month-by-month repayment schedule.
+Веб-приложение на Spring Boot для расчёта кредита: ежемесячные платежи,
+переплата по процентам и полный график выплат. Интерфейс полностью на русском языке.
 
-## Tech stack
+## Технологии
 
-| Component | Version |
-|-----------|---------|
-| Java      | 25      |
+| Компонент | Версия |
+|-----------|--------|
+| Java | 25 |
 | Spring Boot | 3.5.16 |
-| Build     | Maven   |
-| View      | Thymeleaf |
-| Validation | Jakarta Bean Validation |
+| Сборка | Maven |
+| Шаблонизатор | Thymeleaf |
+| Валидация | Jakarta Bean Validation |
 
-## Features
+## Возможности
 
-- Loan amount, annual interest rate and term in months as input.
-- Two repayment schemes:
-  - **Annuity** — equal payments every month.
-  - **Differentiated** — principal repaid in equal parts, so payments decrease.
-- Summary: first/last payment, total interest, total paid, overpayment percentage.
-- Principal vs. interest split bar.
-- Full payment schedule (month, payment, principal, interest, remaining balance).
-- Server-side validation with error messages next to the fields.
-- Responsive layout, light/dark color schemes, print-friendly schedule.
+- Ввод суммы кредита, годовой процентной ставки и срока в месяцах.
+- Два типа платежей:
+  - **Аннуитетный** — равные платежи каждый месяц;
+  - **Дифференцированный** — основной долг гасится равными частями, поэтому платежи постепенно уменьшаются.
+- Сводка по кредиту: первый и последний платёж, переплата по процентам,
+  общая сумма к выплате и процент переплаты от суммы кредита.
+- Наглядная диаграмма соотношения основного долга и процентов.
+- Полный график платежей: месяц, платёж, основной долг, проценты, остаток долга.
+- Серверная валидация полей с сообщениями об ошибках рядом с полями ввода.
+- Адаптивная вёрстка, светлая и тёмная темы, удобный вид графика при печати.
 
-## Project structure
+## Структура проекта
 
 ```
 creditCalculator/
 ├── pom.xml
+├── mvnw
+├── mvnw.cmd
+├── .mvn/wrapper/maven-wrapper.properties
 └── src
     ├── main
     │   ├── java/com/example/creditcalculator
@@ -52,40 +56,64 @@ creditCalculator/
         └── web/LoanControllerTest.java
 ```
 
-## Run
+## Требования
+
+- JDK 25 или новее.
+- Maven устанавливать не обязательно: в проекте есть Maven Wrapper (`mvnw` / `mvnw.cmd`).
+
+## Запуск
 
 ```bash
-./mvnw spring-boot:run     # Windows: mvnw.cmd spring-boot:run
+./mvnw spring-boot:run
 ```
 
-Then open <http://localhost:8080>.
+В Windows:
 
-## Build and test
+```bat
+mvnw.cmd spring-boot:run
+```
+
+После запуска откройте в браузере <http://localhost:8080>.
+
+## Сборка и тесты
 
 ```bash
 ./mvnw clean verify
+```
+
+В Windows:
+
+```bat
+mvnw.cmd clean verify
+```
+
+Готовый исполняемый файл можно запустить командой:
+
+```bash
 java -jar target/credit-calculator-0.0.1-SNAPSHOT.jar
 ```
 
-## Endpoints
+## Эндпоинты
 
-| Method | Path         | Description                                  |
-|--------|--------------|----------------------------------------------|
-| GET    | `/`          | Calculator form                              |
-| POST   | `/calculate` | Validates input and renders the calculation  |
+| Метод | Путь | Описание |
+|-------|------|----------|
+| GET | `/` | Форма кредитного калькулятора |
+| POST | `/calculate` | Проверка введённых данных и вывод результата расчёта |
 
-## Configuration
+## Настройки
 
-`src/main/resources/application.properties`:
+Файл `src/main/resources/application.properties`:
 
-- `app.currency.symbol` — currency symbol shown in the UI (default `$`).
-- `server.port` — HTTP port (default `8080`).
+- `app.currency.symbol` — символ валюты в интерфейсе (по умолчанию `$`);
+- `server.port` — HTTP-порт приложения (по умолчанию `8080`);
+- `spring.web.locale=en_US` — фиксированная локаль, чтобы числа с точкой
+  корректно разбирались независимо от региональных настроек системы.
 
-## Calculation notes
+## Особенности расчёта
 
-- Monthly rate = annual rate / 12, charged on the outstanding balance.
-- Annuity payment: `P = S · r / (1 − (1 + r)^−n)`, where `S` is the principal,
-  `r` the monthly rate and `n` the number of months.
-- Money is rounded to cents; the final payment absorbs rounding leftovers so the
-  balance always ends at exactly zero.
-- Fees, insurance and other bank commissions are not included.
+- Месячная ставка = годовая ставка / 12 и начисляется на остаток долга.
+- Аннуитетный платёж рассчитывается по формуле `P = S · r / (1 − (1 + r)^−n)`,
+  где `S` — сумма кредита, `r` — месячная ставка, `n` — срок в месяцах.
+- Денежные суммы округляются до копеек, а последний платёж корректируется так,
+  чтобы остаток долга в конце срока был ровно нулевым.
+- Комиссии, страхование и другие банковские сборы в расчёте не учитываются.

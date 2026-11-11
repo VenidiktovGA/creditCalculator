@@ -13,22 +13,22 @@ import java.math.BigDecimal;
  */
 public class LoanRequest {
 
-    @NotNull(message = "Loan amount is required")
-    @DecimalMin(value = "1.00", message = "Loan amount must be at least 1")
-    @DecimalMax(value = "1000000000.00", message = "Loan amount is too large")
+    @NotNull(message = "Укажите сумму кредита")
+    @DecimalMin(value = "1.00", message = "Сумма кредита должна быть не меньше 1")
+    @DecimalMax(value = "1000000000.00", message = "Сумма кредита слишком велика")
     private BigDecimal amount = new BigDecimal("250000");
 
-    @NotNull(message = "Interest rate is required")
-    @DecimalMin(value = "0.0", message = "Interest rate cannot be negative")
-    @DecimalMax(value = "100.0", message = "Interest rate cannot exceed 100%")
+    @NotNull(message = "Укажите процентную ставку")
+    @DecimalMin(value = "0.0", message = "Процентная ставка не может быть отрицательной")
+    @DecimalMax(value = "100.0", message = "Процентная ставка не может превышать 100%")
     private BigDecimal annualInterestRate = new BigDecimal("12.5");
 
-    @NotNull(message = "Term is required")
-    @Min(value = 1, message = "Term must be at least 1 month")
-    @Max(value = 600, message = "Term cannot exceed 600 months")
+    @NotNull(message = "Укажите срок кредита")
+    @Min(value = 1, message = "Срок должен быть не меньше 1 месяца")
+    @Max(value = 600, message = "Срок не может превышать 600 месяцев")
     private Integer termMonths = 60;
 
-    @NotNull(message = "Repayment type is required")
+    @NotNull(message = "Выберите тип платежей")
     private LoanType type = LoanType.ANNUITY;
 
     public BigDecimal getAmount() {

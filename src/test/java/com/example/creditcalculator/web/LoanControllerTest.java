@@ -41,7 +41,7 @@ class LoanControllerTest {
                 .andExpect(view().name("index"))
                 .andExpect(model().attributeExists("result"))
                 .andExpect(model().attributeHasNoErrors("loanRequest"))
-                .andExpect(content().string(containsString("Payment schedule")));
+                .andExpect(content().string(containsString("График платежей")));
     }
 
     @Test
@@ -55,7 +55,7 @@ class LoanControllerTest {
                 .andExpect(view().name("index"))
                 .andExpect(model().attributeHasFieldErrors("loanRequest", "amount", "termMonths"))
                 .andExpect(model().attributeDoesNotExist("result"))
-                .andExpect(content().string(containsString("Loan amount must be at least 1")))
-                .andExpect(content().string(containsString("Term must be at least 1 month")));
+                .andExpect(content().string(containsString("Сумма кредита должна быть не меньше 1")))
+                .andExpect(content().string(containsString("Срок должен быть не меньше 1 месяца")));
     }
 }
