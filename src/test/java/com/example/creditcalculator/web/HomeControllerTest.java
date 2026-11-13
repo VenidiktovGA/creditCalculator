@@ -30,7 +30,8 @@ class HomeControllerTest {
                 .andExpect(view().name("landing"))
                 .andExpect(model().attributeExists("example", "compoundExample", "currency"))
                 .andExpect(content().string(containsString("Калькулятор ипотечных платежей")))
-                .andExpect(content().string(containsString("Калькулятор сложного процента")));
+                .andExpect(content().string(containsString("Калькулятор сложного процента")))
+                .andExpect(content().string(containsString("₽")));
     }
 
     @Test

@@ -14,6 +14,10 @@ Instructions:
 
 For UI related code style and best practices: @.agents/rules/ui.md
 
+## Domain: Currency
+- All monetary values in the application are in Russian rubles (RUB).
+- Rounding follows standard RUB conventions (2 decimal places).
+
 ## Shadleaf (Thymeleaf UI components)
 
 - The UI uses Shadleaf: UI components as Thymeleaf tags with the `sl:` prefix

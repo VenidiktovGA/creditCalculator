@@ -18,7 +18,7 @@ public class CompoundInterestController {
     private final String currencySymbol;
 
     public CompoundInterestController(CompoundInterestService calculatorService,
-                                      @Value("${app.currency.symbol:$}") String currencySymbol) {
+                                      @Value("${app.currency.symbol:\u20BD}") String currencySymbol) {
         this.calculatorService = calculatorService;
         this.currencySymbol = currencySymbol;
     }

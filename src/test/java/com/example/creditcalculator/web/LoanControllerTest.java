@@ -42,7 +42,21 @@ class LoanControllerTest {
                 .andExpect(view().name("mortgage"))
                 .andExpect(model().attributeExists("result"))
                 .andExpect(model().attributeHasNoErrors("loanRequest"))
-                .andExpect(content().string(containsString("График платежей")));
+                .andExpect(content().string(containsString("График платежей")))
+                .andExpect(content().string(containsString("10\u00A0000,00\u00A0₽")));
+    }
+
+    @Test
+    void decimalInputIsParsedWithRuRuDisplayLocale() throws Exception {
+        mockMvc.perform(post("/mortgage/calculate")
+                        .param("amount", "10000.50")
+                        .param("annualInterestRate", "12.5")
+                        .param("termMonths", "12")
+                        .param("type", "ANNUITY"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("mortgage"))
+                .andExpect(model().attributeHasNoErrors("loanRequest"))
+                .andExpect(content().string(containsString("10\u00A0000,50\u00A0₽")));
     }
 
     @Test

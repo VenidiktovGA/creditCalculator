@@ -19,7 +19,7 @@ public class HomeController {
 
     public HomeController(LoanCalculatorService loanCalculatorService,
                           CompoundInterestService compoundInterestService,
-                          @Value("${app.currency.symbol:$}") String currencySymbol) {
+                          @Value("${app.currency.symbol:\u20BD}") String currencySymbol) {
         this.loanCalculatorService = loanCalculatorService;
         this.compoundInterestService = compoundInterestService;
         this.currencySymbol = currencySymbol;

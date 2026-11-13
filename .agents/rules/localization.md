@@ -4,6 +4,9 @@
 - The primary UI language for this application is **Russian**.
 - All user-facing text must be written in Russian.
 
+## Currency
+- All monetary amounts must be formatted using the `ru-RU` locale.
+
 ## Scope of Localization
 - **Thymeleaf Templates (.html)**: Translate all user-facing text, including page titles, form labels, button texts, table headers, placeholder texts, and alt attributes.
 - **README.md**: The documentation must be written entirely in Russian, explaining how to build and run the project.

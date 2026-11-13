@@ -42,7 +42,8 @@ class CompoundInterestControllerTest {
                 .andExpect(view().name("compound-interest"))
                 .andExpect(model().attributeExists("result"))
                 .andExpect(model().attributeHasNoErrors("compoundRequest"))
-                .andExpect(content().string(containsString("Рост по годам")));
+                .andExpect(content().string(containsString("Рост по годам")))
+                .andExpect(content().string(containsString("1\u00A0000,00\u00A0₽")));
     }
 
     @Test

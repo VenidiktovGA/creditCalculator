@@ -30,7 +30,7 @@
                 <div class="field">
                     <label for="initialAmount">Начальная сумма</label>
                     <div class="input-wrap">
-                        <span class="prefix" th:text="${currency}">$</span>
+                        <span class="prefix" th:text="${currency}">₽</span>
                         <input id="initialAmount" type="number" th:field="*{initialAmount}"
                                min="0" step="0.01" inputmode="decimal" autocomplete="off" required>
                     </div>
@@ -40,7 +40,7 @@
                 <div class="field">
                     <label for="monthlyContribution">Ежемесячное пополнение</label>
                     <div class="input-wrap">
-                        <span class="prefix" th:text="${currency}">$</span>
+                        <span class="prefix" th:text="${currency}">₽</span>
                         <input id="monthlyContribution" type="number" th:field="*{monthlyContribution}"
                                min="0" step="0.01" inputmode="decimal" autocomplete="off" required>
                     </div>
@@ -81,8 +81,8 @@
         <div class="result-head">
             <h2>Результаты расчёта</h2>
             <p class="muted">
-                <span th:text="|Старт ${#numbers.formatDecimal(result.request.initialAmount, 1, 'COMMA', 0, 'POINT')} ${currency}|">Старт 10 000 $</span> &middot;
-                <span th:text="|${#numbers.formatDecimal(result.request.monthlyContribution, 1, 'COMMA', 0, 'POINT')} ${currency} в месяц|">500 $ в месяц</span> &middot;
+                <span th:text="|Старт ${#numbers.formatCurrency(result.request.initialAmount)}|">Старт 10 000,00 ₽</span> &middot;
+                <span th:text="|${#numbers.formatCurrency(result.request.monthlyContribution)} в месяц|">500,00 ₽ в месяц</span> &middot;
                 <span th:text="|${result.request.annualInterestRate}% годовых, ${result.request.years} лет|">8% годовых, 10 лет</span>
             </p>
         </div>
@@ -90,17 +90,17 @@
         <div class="stats">
             <div class="stat">
                 <span class="stat-label">Итоговый баланс</span>
-                <span class="stat-value" th:text="|${currency}${#numbers.formatDecimal(result.finalBalance, 1, 'COMMA', 2, 'POINT')}|">$92 000.00</span>
+                <span class="stat-value" th:text="${#numbers.formatCurrency(result.finalBalance)}">92 000,00 ₽</span>
             </div>
 
             <div class="stat">
                 <span class="stat-label">Внесено всего</span>
-                <span class="stat-value" th:text="|${currency}${#numbers.formatDecimal(result.totalContributions, 1, 'COMMA', 2, 'POINT')}|">$70 000.00</span>
+                <span class="stat-value" th:text="${#numbers.formatCurrency(result.totalContributions)}">70 000,00 ₽</span>
             </div>
 
             <div class="stat">
                 <span class="stat-label">Доход от процентов</span>
-                <span class="stat-value accent" th:text="|${currency}${#numbers.formatDecimal(result.totalInterest, 1, 'COMMA', 2, 'POINT')}|">$22 000.00</span>
+                <span class="stat-value accent" th:text="${#numbers.formatCurrency(result.totalInterest)}">22 000,00 ₽</span>
                 <span class="stat-note" th:text="|${result.returnPercent}% к внесённой сумме|">31.4% к внесённой сумме</span>
             </div>
 
@@ -117,7 +117,7 @@
                     <h3>Рост капитала по годам</h3>
                     <p>Баланс на конец каждого года с учётом капитализации и пополнений.</p>
                 </div>
-                <span class="growth-total" th:text="|${currency}${#numbers.formatDecimal(result.finalBalance, 1, 'COMMA', 0, 'POINT')}|">$92 000</span>
+                <span class="growth-total" th:text="${#numbers.formatCurrency(result.finalBalance)}">92 000,00 ₽</span>
             </div>
 
             <div class="bar-chart" role="img"
@@ -125,7 +125,7 @@
                 <div class="bar-column" th:each="row : ${result.schedule}">
                     <div class="bar-track">
                         <span class="bar" th:style="|height: ${row.barHeight}%|"
-                              th:title="|${row.year} год: ${currency}${#numbers.formatDecimal(row.balance, 1, 'COMMA', 2, 'POINT')}|"></span>
+                              th:title="|${row.year} год: ${#numbers.formatCurrency(row.balance)}|"></span>
                     </div>
                     <span class="bar-year"
                           th:if="${row.year == 1 or row.year % 5 == 0 or row.year == result.request.years}"
@@ -154,9 +154,9 @@
                     <tbody>
                     <tr th:each="row : ${result.schedule}">
                         <td class="num" th:text="${row.year}">1</td>
-                        <td class="num" th:text="|${currency}${#numbers.formatDecimal(row.totalContributions, 1, 'COMMA', 2, 'POINT')}|">$16 000.00</td>
-                        <td class="num" th:text="|${currency}${#numbers.formatDecimal(row.totalInterest, 1, 'COMMA', 2, 'POINT')}|">$800.00</td>
-                        <td class="num" th:text="|${currency}${#numbers.formatDecimal(row.balance, 1, 'COMMA', 2, 'POINT')}|">$16 800.00</td>
+                        <td class="num" th:text="${#numbers.formatCurrency(row.totalContributions)}">16 000,00 ₽</td>
+                        <td class="num" th:text="${#numbers.formatCurrency(row.totalInterest)}">800,00 ₽</td>
+                        <td class="num" th:text="${#numbers.formatCurrency(row.balance)}">16 800,00 ₽</td>
                     </tr>
                     </tbody>
                 </table>

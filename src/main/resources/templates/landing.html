@@ -82,11 +82,11 @@
 
                 <div class="preview-amount">
                     <span class="preview-label">Платёж в месяц</span>
-                    <strong th:text="|${currency}${#numbers.formatDecimal(example.firstPayment, 1, 'COMMA', 2, 'POINT')}|">$5 626.00</strong>
+                    <strong th:text="${#numbers.formatCurrency(example.firstPayment)}">5 626,00 ₽</strong>
                 </div>
 
                 <div class="preview-meta">
-                    <span th:text="|${#numbers.formatDecimal(example.request.amount, 1, 'COMMA', 0, 'POINT')} ${currency}|">250 000 $</span>
+                    <span th:text="${#numbers.formatCurrency(example.request.amount)}">250 000,00 ₽</span>
                     <span aria-hidden="true">&middot;</span>
                     <span th:text="|${example.request.annualInterestRate}% годовых|">12.5% годовых</span>
                     <span aria-hidden="true">&middot;</span>
@@ -109,11 +109,11 @@
                 <div class="preview-stats">
                     <div>
                         <span>Переплата</span>
-                        <strong th:text="|${currency}${#numbers.formatDecimal(example.totalInterest, 1, 'COMMA', 0, 'POINT')}|">$87 000</strong>
+                        <strong th:text="${#numbers.formatCurrency(example.totalInterest)}">87 000,00 ₽</strong>
                     </div>
                     <div>
                         <span>Всего к выплате</span>
-                        <strong th:text="|${currency}${#numbers.formatDecimal(example.totalPaid, 1, 'COMMA', 0, 'POINT')}|">$337 000</strong>
+                        <strong th:text="${#numbers.formatCurrency(example.totalPaid)}">337 000,00 ₽</strong>
                     </div>
                 </div>
 
@@ -315,7 +315,7 @@
 
                 <div class="card-visual compound-visual" aria-hidden="true">
                     <span class="growth-badge"
-                          th:text="|+${currency}${#numbers.formatDecimal(compoundExample.totalInterest, 1, 'COMMA', 0, 'POINT')}|">+$22 000</span>
+                          th:text="|+${#numbers.formatCurrency(compoundExample.totalInterest)}|">+22 000,00 ₽</span>
                     <div class="growth-chart">
                         <span style="height: 18%"></span>
                         <span style="height: 26%"></span>
