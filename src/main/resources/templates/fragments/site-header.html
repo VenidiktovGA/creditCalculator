@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<header th:fragment="siteHeader(active)" class="site-header">
+    <a class="brand" th:href="@{/}" aria-label="КредитКалькулятор — на главную">
+        <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 3v18h18"/>
+                <path d="m7 15 4-4 3 3 5-6"/>
+            </svg>
+        </span>
+        <span class="brand-name">Кредит<span>Калькулятор</span></span>
+    </a>
+
+    <nav class="site-nav" aria-label="Основная навигация">
+        <a th:href="@{/mortgage}"
+           th:classappend="${active == 'mortgage' ? 'is-active' : ''}"
+           th:attr="aria-current=${active == 'mortgage' ? 'page' : null}">Ипотека</a>
+        <a th:href="@{/compound-interest}"
+           th:classappend="${active == 'compound' ? 'is-active' : ''}"
+           th:attr="aria-current=${active == 'compound' ? 'page' : null}">Сложный процент</a>
+    </nav>
+
+    <a class="btn btn-primary btn-sm" th:href="@{/mortgage}" th:if="${active == 'landing'}">Начать расчёт</a>
+    <a class="btn btn-ghost btn-sm" th:href="@{/}" th:unless="${active == 'landing'}">На главную</a>
+</header>
+
+</body>
+</html>

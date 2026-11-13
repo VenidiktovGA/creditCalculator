@@ -34,22 +34,22 @@ public class LoanController {
         return LoanType.values();
     }
 
-    @GetMapping("/")
-    public String index(Model model) {
+    @GetMapping("/mortgage")
+    public String mortgage(Model model) {
         if (!model.containsAttribute("loanRequest")) {
             model.addAttribute("loanRequest", new LoanRequest());
         }
-        return "index";
+        return "mortgage";
     }
 
-    @PostMapping("/calculate")
+    @PostMapping({"/mortgage/calculate", "/calculate"})
     public String calculate(@Valid @ModelAttribute("loanRequest") LoanRequest request,
                             BindingResult bindingResult,
                             Model model) {
         if (bindingResult.hasErrors()) {
-            return "index";
+            return "mortgage";
         }
         model.addAttribute("result", calculatorService.calculate(request));
-        return "index";
+        return "mortgage";
     }
 }

@@ -23,36 +23,49 @@ class LoanControllerTest {
     private MockMvc mockMvc;
 
     @Test
-    void indexPageIsRendered() throws Exception {
-        mockMvc.perform(get("/"))
+    void mortgagePageIsRendered() throws Exception {
+        mockMvc.perform(get("/mortgage"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("index"))
-                .andExpect(model().attributeExists("loanRequest", "loanTypes", "currency"));
+                .andExpect(view().name("mortgage"))
+                .andExpect(model().attributeExists("loanRequest", "loanTypes", "currency"))
+                .andExpect(content().string(containsString("Калькулятор ипотечных платежей")));
     }
 
     @Test
     void calculateAddsResultToModel() throws Exception {
-        mockMvc.perform(post("/calculate")
+        mockMvc.perform(post("/mortgage/calculate")
                         .param("amount", "10000")
                         .param("annualInterestRate", "12")
                         .param("termMonths", "12")
                         .param("type", "ANNUITY"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("index"))
+                .andExpect(view().name("mortgage"))
                 .andExpect(model().attributeExists("result"))
                 .andExpect(model().attributeHasNoErrors("loanRequest"))
                 .andExpect(content().string(containsString("График платежей")));
     }
 
     @Test
-    void invalidInputReturnsFormWithErrors() throws Exception {
+    void legacyCalculateEndpointKeepsWorking() throws Exception {
         mockMvc.perform(post("/calculate")
+                        .param("amount", "10000")
+                        .param("annualInterestRate", "12")
+                        .param("termMonths", "12")
+                        .param("type", "ANNUITY"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("mortgage"))
+                .andExpect(model().attributeExists("result"));
+    }
+
+    @Test
+    void invalidInputReturnsFormWithErrors() throws Exception {
+        mockMvc.perform(post("/mortgage/calculate")
                         .param("amount", "0")
                         .param("annualInterestRate", "12")
                         .param("termMonths", "0")
                         .param("type", "ANNUITY"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("index"))
+                .andExpect(view().name("mortgage"))
                 .andExpect(model().attributeHasFieldErrors("loanRequest", "amount", "termMonths"))
                 .andExpect(model().attributeDoesNotExist("result"))
                 .andExpect(content().string(containsString("Сумма кредита должна быть не меньше 1")))

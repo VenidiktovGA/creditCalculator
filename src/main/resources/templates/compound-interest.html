@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description"
+          content="Калькулятор сложного процента с ежемесячной капитализацией и регулярными пополнениями: итоговый баланс, доход и рост капитала по годам.">
+    <title>Калькулятор сложного процента — КредитКалькулятор</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/favicon.svg}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<main class="page">
+
+    <header th:replace="~{fragments/site-header :: siteHeader('compound')}"></header>
+
+    <section class="page-intro">
+        <span class="eyebrow"><span class="pulse-dot" aria-hidden="true"></span>Инвестиции</span>
+        <h1>Калькулятор сложного процента</h1>
+        <p>
+            Узнайте, сколько принесут накопления с ежемесячной капитализацией процентов
+            и регулярными пополнениями. Оцените итоговый баланс, доход и рост капитала по годам.
+        </p>
+    </section>
+
+    <section class="card">
+        <form th:action="@{/compound-interest/calculate}" th:object="${compoundRequest}" method="post" novalidate>
+            <div class="form-grid">
+
+                <div class="field">
+                    <label for="initialAmount">Начальная сумма</label>
+                    <div class="input-wrap">
+                        <span class="prefix" th:text="${currency}">$</span>
+                        <input id="initialAmount" type="number" th:field="*{initialAmount}"
+                               min="0" step="0.01" inputmode="decimal" autocomplete="off" required>
+                    </div>
+                    <p class="error" th:if="${#fields.hasErrors('initialAmount')}" th:errors="*{initialAmount}">Некорректная сумма</p>
+                </div>
+
+                <div class="field">
+                    <label for="monthlyContribution">Ежемесячное пополнение</label>
+                    <div class="input-wrap">
+                        <span class="prefix" th:text="${currency}">$</span>
+                        <input id="monthlyContribution" type="number" th:field="*{monthlyContribution}"
+                               min="0" step="0.01" inputmode="decimal" autocomplete="off" required>
+                    </div>
+                    <p class="error" th:if="${#fields.hasErrors('monthlyContribution')}" th:errors="*{monthlyContribution}">Некорректная сумма</p>
+                </div>
+
+                <div class="field">
+                    <label for="annualInterestRate">Годовая процентная ставка</label>
+                    <div class="input-wrap">
+                        <input id="annualInterestRate" type="number" th:field="*{annualInterestRate}"
+                               min="0" max="100" step="0.01" inputmode="decimal" autocomplete="off" required>
+                        <span class="suffix">%</span>
+                    </div>
+                    <p class="error" th:if="${#fields.hasErrors('annualInterestRate')}" th:errors="*{annualInterestRate}">Некорректная ставка</p>
+                </div>
+
+                <div class="field">
+                    <label for="years">Срок, лет</label>
+                    <input id="years" type="number" th:field="*{years}"
+                           min="1" max="50" step="1" inputmode="numeric" autocomplete="off" required>
+                    <p class="error" th:if="${#fields.hasErrors('years')}" th:errors="*{years}">Некорректный срок</p>
+                </div>
+
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="primary">Рассчитать</button>
+                <p class="hint">
+                    Проценты капитализируются каждый месяц и прибавляются к балансу.
+                    Пополнение вносится в конце каждого месяца.
+                </p>
+            </div>
+        </form>
+    </section>
+
+    <section class="results" th:if="${result}">
+
+        <div class="result-head">
+            <h2>Результаты расчёта</h2>
+            <p class="muted">
+                <span th:text="|Старт ${#numbers.formatDecimal(result.request.initialAmount, 1, 'COMMA', 0, 'POINT')} ${currency}|">Старт 10 000 $</span> &middot;
+                <span th:text="|${#numbers.formatDecimal(result.request.monthlyContribution, 1, 'COMMA', 0, 'POINT')} ${currency} в месяц|">500 $ в месяц</span> &middot;
+                <span th:text="|${result.request.annualInterestRate}% годовых, ${result.request.years} лет|">8% годовых, 10 лет</span>
+            </p>
+        </div>
+
+        <div class="stats">
+            <div class="stat">
+                <span class="stat-label">Итоговый баланс</span>
+                <span class="stat-value" th:text="|${currency}${#numbers.formatDecimal(result.finalBalance, 1, 'COMMA', 2, 'POINT')}|">$92 000.00</span>
+            </div>
+
+            <div class="stat">
+                <span class="stat-label">Внесено всего</span>
+                <span class="stat-value" th:text="|${currency}${#numbers.formatDecimal(result.totalContributions, 1, 'COMMA', 2, 'POINT')}|">$70 000.00</span>
+            </div>
+
+            <div class="stat">
+                <span class="stat-label">Доход от процентов</span>
+                <span class="stat-value accent" th:text="|${currency}${#numbers.formatDecimal(result.totalInterest, 1, 'COMMA', 2, 'POINT')}|">$22 000.00</span>
+                <span class="stat-note" th:text="|${result.returnPercent}% к внесённой сумме|">31.4% к внесённой сумме</span>
+            </div>
+
+            <div class="stat">
+                <span class="stat-label">Доходность</span>
+                <span class="stat-value" th:text="|${result.returnPercent}%|">31.4%</span>
+                <span class="stat-note">за весь срок</span>
+            </div>
+        </div>
+
+        <div class="card growth-card">
+            <div class="growth-head">
+                <div>
+                    <h3>Рост капитала по годам</h3>
+                    <p>Баланс на конец каждого года с учётом капитализации и пополнений.</p>
+                </div>
+                <span class="growth-total" th:text="|${currency}${#numbers.formatDecimal(result.finalBalance, 1, 'COMMA', 0, 'POINT')}|">$92 000</span>
+            </div>
+
+            <div class="bar-chart" role="img"
+                 th:attr="aria-label=|Рост капитала по годам за ${result.request.years} лет|">
+                <div class="bar-column" th:each="row : ${result.schedule}">
+                    <div class="bar-track">
+                        <span class="bar" th:style="|height: ${row.barHeight}%|"
+                              th:title="|${row.year} год: ${currency}${#numbers.formatDecimal(row.balance, 1, 'COMMA', 2, 'POINT')}|"></span>
+                    </div>
+                    <span class="bar-year"
+                          th:if="${row.year == 1 or row.year % 5 == 0 or row.year == result.request.years}"
+                          th:text="${row.year}">1</span>
+                </div>
+            </div>
+
+            <div class="chart-legend">
+                <span><i class="chart-dot" aria-hidden="true"></i>Баланс счёта</span>
+                <span class="chart-note">Наведите на столбец, чтобы увидеть сумму</span>
+            </div>
+        </div>
+
+        <div class="card schedule-card">
+            <h3>Рост по годам</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                    <tr>
+                        <th class="num">Год</th>
+                        <th class="num">Внесено всего</th>
+                        <th class="num">Проценты</th>
+                        <th class="num">Баланс</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="row : ${result.schedule}">
+                        <td class="num" th:text="${row.year}">1</td>
+                        <td class="num" th:text="|${currency}${#numbers.formatDecimal(row.totalContributions, 1, 'COMMA', 2, 'POINT')}|">$16 000.00</td>
+                        <td class="num" th:text="|${currency}${#numbers.formatDecimal(row.totalInterest, 1, 'COMMA', 2, 'POINT')}|">$800.00</td>
+                        <td class="num" th:text="|${currency}${#numbers.formatDecimal(row.balance, 1, 'COMMA', 2, 'POINT')}|">$16 800.00</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="footnote">
+                Проценты начисляются на остаток и капитализируются ежемесячно. Суммы округлены до копеек.
+                Налоги, комиссии и инфляция в расчёте не учитываются.
+            </p>
+        </div>
+
+    </section>
+
+    <footer class="site-footer">
+        <div class="footer-main">
+            <p>КредитКалькулятор &middot; Spring Boot + Thymeleaf</p>
+            <nav class="footer-links" aria-label="Ссылки в подвале">
+                <a th:href="@{/}">На главную</a>
+                <a th:href="@{/mortgage}">Калькулятор ипотеки</a>
+            </nav>
+        </div>
+    </footer>
+
+</main>
+</body>
+</html>
