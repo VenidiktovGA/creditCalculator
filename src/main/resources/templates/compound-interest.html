@@ -115,27 +115,98 @@
             <div class="growth-head">
                 <div>
                     <h3>Рост капитала по годам</h3>
-                    <p>Баланс на конец каждого года с учётом капитализации и пополнений.</p>
+                    <p>Баланс счёта и сумма пополнений на конец каждого года.</p>
                 </div>
                 <span class="growth-total" th:text="${#numbers.formatCurrency(result.finalBalance)}">92 000,00 ₽</span>
             </div>
 
-            <div class="bar-chart" role="img"
-                 th:attr="aria-label=|Рост капитала по годам за ${result.request.years} лет|">
-                <div class="bar-column" th:each="row : ${result.schedule}">
-                    <div class="bar-track">
-                        <span class="bar" th:style="|height: ${row.barHeight}%|"
-                              th:title="|${row.year} год: ${#numbers.formatCurrency(row.balance)}|"></span>
-                    </div>
-                    <span class="bar-year"
+            <div class="line-chart" role="img"
+                 th:with="maxValue=${result.finalBalance.signum() == 0 ? 1000.0 : result.finalBalance.doubleValue()},
+                          rawStep=${maxValue / 5},
+                          magnitude=${T(java.lang.Math).pow(10, T(java.lang.Math).floor(T(java.lang.Math).log10(rawStep)))},
+                          fraction=${rawStep / magnitude},
+                          axisStep=${(fraction <= 1 ? 1 : (fraction <= 2 ? 2 : (fraction <= 2.5 ? 2.5 : (fraction <= 5 ? 5 : 10)))) * magnitude},
+                          tickCount=${T(java.lang.Math).ceil(maxValue / axisStep)},
+                          axisMax=${tickCount * axisStep}"
+                 th:attr="aria-label=|Рост капитала по годам за ${result.request.years} лет: внесённые средства и баланс счёта|">
+                <div class="line-chart-y" aria-hidden="true">
+                    <span class="chart-y-label" th:each="tick : ${#numbers.sequence(0, 5)}"
+                          th:if="${tick <= tickCount}"
+                          th:style="|top: ${98 - tick * 94.0 / tickCount}%|"
+                          th:text="${#numbers.formatDecimal(tick * axisStep, 1, 'DEFAULT', (axisStep < 1 ? 2 : 0), 'DEFAULT') + ' ₽'}">0 ₽</span>
+                </div>
+
+                <svg class="line-chart-svg" viewBox="0 0 100 100" preserveAspectRatio="none"
+                     aria-hidden="true" focusable="false">
+                    <defs>
+                        <linearGradient id="growth-line-gradient" gradientUnits="userSpaceOnUse"
+                                        x1="0" y1="0" x2="0" y2="100">
+                            <stop offset="0%" stop-color="#34d399"/>
+                            <stop offset="100%" stop-color="#0ea5e9"/>
+                        </linearGradient>
+                    </defs>
+
+                    <g class="chart-grid">
+                        <line class="chart-grid-line" th:each="tick : ${#numbers.sequence(0, 5)}"
+                              th:if="${tick <= tickCount}"
+                              x1="2" x2="98" vector-effect="non-scaling-stroke"
+                              th:classappend="${tick == 0 ? 'chart-grid-base' : ''}"
+                              th:attr="y1=${98 - tick * 94.0 / tickCount}, y2=${98 - tick * 94.0 / tickCount}"/>
+                        <line class="chart-grid-line" th:each="row, rowStat : ${result.schedule}"
+                              th:if="${result.request.years > 1 and (row.year == 1 or row.year % 5 == 0 or row.year == result.request.years)}"
+                              y1="4" y2="98" vector-effect="non-scaling-stroke"
+                              th:attr="x1=${2 + rowStat.index * 96.0 / (result.request.years - 1)},
+                                       x2=${2 + rowStat.index * 96.0 / (result.request.years - 1)}"/>
+                    </g>
+
+                    <g th:each="row, rowStat : ${result.schedule}"
+                       th:if="${rowStat.index > 0}"
+                       th:with="prev=${result.schedule[rowStat.index - 1]},
+                                x1=${2 + (rowStat.index - 1) * 96.0 / (result.request.years - 1)},
+                                x2=${2 + rowStat.index * 96.0 / (result.request.years - 1)}">
+                        <line class="chart-line chart-line-balance"
+                              vector-effect="non-scaling-stroke"
+                              th:attr="x1=${x1},y1=${98 - prev.balance.doubleValue() / axisMax * 94},
+                                       x2=${x2},y2=${98 - row.balance.doubleValue() / axisMax * 94}"/>
+                        <line class="chart-line chart-line-contributions"
+                              vector-effect="non-scaling-stroke"
+                              th:attr="x1=${x1},y1=${98 - prev.totalContributions.doubleValue() / axisMax * 94},
+                                       x2=${x2},y2=${98 - row.totalContributions.doubleValue() / axisMax * 94}"/>
+                    </g>
+
+                    <g th:each="row : ${result.schedule}"
+                       th:if="${result.request.years == 1}">
+                        <line class="chart-line chart-line-balance chart-line-point"
+                              vector-effect="non-scaling-stroke" x1="50" x2="50"
+                              th:attr="y1=${98 - row.balance.doubleValue() / axisMax * 94},
+                                       y2=${98 - row.balance.doubleValue() / axisMax * 94}"/>
+                        <line class="chart-line chart-line-contributions chart-line-point"
+                              vector-effect="non-scaling-stroke" x1="50" x2="50"
+                              th:attr="y1=${98 - row.totalContributions.doubleValue() / axisMax * 94},
+                                       y2=${98 - row.totalContributions.doubleValue() / axisMax * 94}"/>
+                    </g>
+
+                    <rect class="chart-hit" th:each="row, rowStat : ${result.schedule}"
+                          th:with="step=${result.request.years > 1 ? 96.0 / (result.request.years - 1) : 100.0}"
+                          y="0" height="100" fill="transparent"
+                          th:attr="x=${result.request.years > 1 ? 2 + (rowStat.index - 0.5) * step : 0.0},
+                                   width=${step}">
+                        <title th:text="|${row.year} год: внесено ${#numbers.formatCurrency(row.totalContributions)}, баланс ${#numbers.formatCurrency(row.balance)}|">1 год: внесено 16 000,00 ₽, баланс 16 800,00 ₽</title>
+                    </rect>
+                </svg>
+
+                <div class="line-chart-years">
+                    <span class="chart-year" th:each="row, rowStat : ${result.schedule}"
                           th:if="${row.year == 1 or row.year % 5 == 0 or row.year == result.request.years}"
+                          th:style="|left: ${result.request.years > 1 ? 2 + rowStat.index * 96.0 / (result.request.years - 1) : 50}%|"
                           th:text="${row.year}">1</span>
                 </div>
             </div>
 
             <div class="chart-legend">
                 <span><i class="chart-dot" aria-hidden="true"></i>Баланс счёта</span>
-                <span class="chart-note">Наведите на столбец, чтобы увидеть сумму</span>
+                <span><i class="chart-dot chart-dot-contributions" aria-hidden="true"></i>Внесённые средства</span>
+                <span class="chart-note">Наведите на график, чтобы увидеть суммы</span>
             </div>
         </div>
 

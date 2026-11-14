@@ -43,7 +43,13 @@ class CompoundInterestControllerTest {
                 .andExpect(model().attributeExists("result"))
                 .andExpect(model().attributeHasNoErrors("compoundRequest"))
                 .andExpect(content().string(containsString("Рост по годам")))
-                .andExpect(content().string(containsString("1\u00A0000,00\u00A0₽")));
+                .andExpect(content().string(containsString("1\u00A0000,00\u00A0₽")))
+                .andExpect(content().string(containsString("line-chart")))
+                .andExpect(content().string(containsString("chart-line-balance")))
+                .andExpect(content().string(containsString("chart-line-contributions")))
+                .andExpect(content().string(containsString("chart-grid-line")))
+                .andExpect(content().string(containsString("chart-y-label")))
+                .andExpect(content().string(containsString("2\u00A0500 ₽")));
     }
 
     @Test
