@@ -6,5 +6,16 @@
       "command": ["mvn", "spotless:apply", "-DspotlessFiles=$FILE"],
       "extensions": [".java"]
     }
+  },
+  "mcp": {
+    "github": {
+      "type": "remote",
+      "url": "https://api.githubcopilot.com/mcp/",
+      "enabled": true,
+      "oauth": false,
+      "headers": {
+        "Authorization": "Bearer {env:GHPAT}"
+      }
+    }
   }
 }
